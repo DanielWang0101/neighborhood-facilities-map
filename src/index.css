@@ -1,3 +1,5 @@
+/* @import url('https://unpkg.com/leaflet@1.9.4/dist/leaflet.css'); */
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -75,8 +77,10 @@
   }
 }
 
-/* Leaflet styles */
+/* Leaflet styles - 增加重要标记 */
 .leaflet-container {
-  width: 100%;
-  height: 100%;
+  width: 100% !important;
+  height: 100% !important;
+  z-index: 1 !important;
+  position: absolute !important;
 } 

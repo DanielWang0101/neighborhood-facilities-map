@@ -4,6 +4,17 @@ import { Icon } from 'leaflet'
 import { useMapStore } from '../../store/mapStore'
 import 'leaflet/dist/leaflet.css'
 
+// Fix Leaflet icon issue
+import L from 'leaflet';
+// @ts-ignore - _getIconUrl exists at runtime but not in the type definitions
+delete (L.Icon.Default.prototype as any)._getIconUrl;
+
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
+  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+});
+
 // 地图实际渲染组件
 function MapContent() {
   const { 
@@ -30,12 +41,6 @@ function MapContent() {
         <>
           <Marker
             position={[searchedLocation.lat, searchedLocation.lng]}
-            icon={new Icon({
-              iconUrl: '/icons/map-pin.svg',
-              iconSize: [32, 32],
-              iconAnchor: [16, 32],
-              popupAnchor: [0, -32]
-            })}
           >
             <Popup>{searchedAddress}</Popup>
           </Marker>
@@ -57,17 +62,10 @@ function MapContent() {
       {userLocation && !searchedLocation && (
         <Marker
           position={[userLocation.lat, userLocation.lng]}
-          icon={new Icon({
-            iconUrl: '/icons/user-location.svg',
-            iconSize: [24, 24],
-            iconAnchor: [12, 12]
-          })}
         >
           <Popup>您的位置</Popup>
         </Marker>
       )}
-      
-      {/* 设施标记将在后续实现 */}
     </>
   )
 }
@@ -84,12 +82,17 @@ export function MapContainer() {
   
   if (!isClient) return <div className="w-full h-full bg-gray-100" />
   
+  // 默认位置为北美中部
+  const defaultPosition: [number, number] = [40, -95];
+  const position = userLocation ? [userLocation.lat, userLocation.lng] as [number, number] : defaultPosition;
+  
   return (
-    <div className="flex-1 h-full relative">
+    <div className="h-full w-full relative" style={{ height: '100vh', width: '100%' }}>
       <LeafletMapContainer
-        center={userLocation ? [userLocation.lat, userLocation.lng] : [40, -95]}
+        center={position}
         zoom={userLocation ? 14 : 4}
         style={{ height: '100%', width: '100%' }}
+        className="z-10"
       >
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'

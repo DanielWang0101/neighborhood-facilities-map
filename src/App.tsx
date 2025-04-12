@@ -26,9 +26,15 @@ function App() {
   return (
     <ThemeProvider defaultTheme="light" storageKey="facilities-theme">
       <div className="flex h-screen w-screen overflow-hidden">
-        <SearchPanel />
-        <MapContainer />
-        <Legend />
+        <div className="w-80 flex-shrink-0">
+          <SearchPanel />
+        </div>
+        <div className="flex-1">
+          <MapContainer />
+        </div>
+        <div className="w-72 flex-shrink-0">
+          <Legend />
+        </div>
       </div>
     </ThemeProvider>
   )
