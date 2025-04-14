@@ -83,4 +83,76 @@
   height: 100% !important;
   z-index: 1 !important;
   position: absolute !important;
+}
+
+/* 地图容器样式 */
+.map-container-wrapper {
+  position: relative;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  min-height: 300px; /* 确保最小高度 */
+}
+
+/* 设施图标样式 */
+.facility-icon {
+  background-color: white !important;
+  border-radius: 50% !important;
+  padding: 3px !important;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5) !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  width: 36px !important;
+  height: 36px !important;
+  border: 2px solid white !important;
+  z-index: 1000 !important;
+}
+
+/* 确保图标内容正确居中 */
+.facility-icon img {
+  width: 20px !important;
+  height: 20px !important;
+  display: block !important;
+}
+
+/* 图标悬停效果 */
+.facility-icon:hover {
+  transform: scale(1.2) !important;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.6) !important;
+  transition: all 0.2s ease !important;
+}
+
+/* 银行图标特殊样式 */
+.facility-icon-bank {
+  background-color: #f0fff0 !important;
+  border: 2px solid #0F9D58 !important;
+}
+
+/* 设施弹窗样式 */
+.facility-popup {
+  padding: 8px !important;
+  min-width: 180px !important;
+  font-size: 14px !important;
+}
+
+.flex {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+  }
+/* 添加媒体查询，确保在小屏幕设备上的响应式体验 */
+@media (max-width: 768px) {
+  .flex {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .map-container-wrapper {
+    min-height: 50vh;
+  }
+  
+  .leaflet-container {
+    height: 50vh !important; /* 在小屏幕上减小高度 */
+  }
 } 

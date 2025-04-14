@@ -26,6 +26,13 @@ export interface Address {
   lng: number
 }
 
+// 缓存的设施数据
+interface FacilitiesCache {
+  key: string
+  facilities: Facility[]
+  timestamp: number
+}
+
 interface MapState {
   userLocation: LatLng | null
   searchedLocation: LatLng | null
@@ -35,6 +42,7 @@ interface MapState {
   facilities: Facility[]
   isLoading: boolean
   error: string | null
+  facilitiesCache: FacilitiesCache[] // 设施数据缓存
   
   // Actions
   setUserLocation: (location: LatLng) => void
@@ -46,9 +54,17 @@ interface MapState {
   setIsLoading: (isLoading: boolean) => void
   setError: (error: string | null) => void
   resetFacilities: () => void
+  
+  // 缓存相关方法
+  getCachedFacilities: (key: string) => Facility[] | null
+  setCachedFacilities: (key: string, facilities: Facility[]) => void
+  clearCache: () => void
 }
 
-export const useMapStore = create<MapState>((set) => ({
+// 缓存过期时间（24小时）
+const CACHE_EXPIRATION = 24 * 60 * 60 * 1000;
+
+export const useMapStore = create<MapState>((set, get) => ({
   userLocation: null,
   searchedLocation: null,
   searchedAddress: null,
@@ -57,6 +73,7 @@ export const useMapStore = create<MapState>((set) => ({
   facilities: [],
   isLoading: false,
   error: null,
+  facilitiesCache: [],
   
   setUserLocation: (location) => set({ userLocation: location }),
   
@@ -83,5 +100,40 @@ export const useMapStore = create<MapState>((set) => ({
   
   setError: (error) => set({ error }),
   
-  resetFacilities: () => set({ facilities: [] })
+  resetFacilities: () => set({ facilities: [] }),
+  
+  // 获取缓存的设施数据
+  getCachedFacilities: (key) => {
+    const cache = get().facilitiesCache.find(c => c.key === key);
+    
+    if (!cache) return null;
+    
+    // 检查缓存是否过期
+    if (Date.now() - cache.timestamp > CACHE_EXPIRATION) return null;
+    
+    console.log(`使用缓存的设施数据: ${key}`);
+    return cache.facilities;
+  },
+  
+  // 设置缓存
+  setCachedFacilities: (key, facilities) => set((state) => {
+    // 移除旧的相同key的缓存
+    const filteredCache = state.facilitiesCache.filter(c => c.key !== key);
+    
+    // 添加新缓存
+    const newCache = {
+      key,
+      facilities,
+      timestamp: Date.now()
+    };
+    
+    console.log(`缓存设施数据: ${key}, 数量: ${facilities.length}`);
+    
+    return {
+      facilitiesCache: [...filteredCache, newCache]
+    };
+  }),
+  
+  // 清除所有缓存
+  clearCache: () => set({ facilitiesCache: [] })
 })) 

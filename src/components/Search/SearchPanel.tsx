@@ -10,6 +10,7 @@ export function SearchPanel() {
     toggleFacilityType,
     setSelectedFacilityTypes,
     setSearchedLocation,
+    searchedLocation,
     setIsLoading,
     setError
   } = useMapStore()
@@ -90,11 +91,23 @@ export function SearchPanel() {
   }
   
   const selectAllFacilities = () => {
+    if (!searchedLocation) {
+      setError('请先搜索地址，然后再选择设施类型')
+      return
+    }
     setSelectedFacilityTypes(Object.keys(facilityConfigs) as FacilityType[])
   }
   
   const clearFacilities = () => {
     setSelectedFacilityTypes([])
+  }
+  
+  const handleToggleFacility = (type: FacilityType) => {
+    if (!searchedLocation && !selectedFacilityTypes.includes(type)) {
+      setError('请先搜索地址，然后再选择设施类型')
+      return
+    }
+    toggleFacilityType(type)
   }
   
   return (
@@ -103,6 +116,7 @@ export function SearchPanel() {
       
       {/* 地址搜索 */}
       <div className="mb-6">
+        <h2 className="text-lg font-medium mb-2">地址搜索</h2>
         <div className="relative">
           <input
             type="text"
@@ -130,6 +144,12 @@ export function SearchPanel() {
           >
             搜索
           </button>
+          
+          {!searchedLocation && (
+            <div className="mt-2 p-2 text-sm bg-blue-50 border border-blue-200 rounded text-blue-700 dark:bg-blue-900/30 dark:text-blue-200 dark:border-blue-800">
+              第一步：请先搜索地址
+            </div>
+          )}
         </div>
       </div>
       
@@ -158,6 +178,7 @@ export function SearchPanel() {
             <button
               onClick={selectAllFacilities}
               className="text-xs bg-primary/20 text-primary px-2 py-1 rounded"
+              disabled={!searchedLocation}
             >
               全选
             </button>
@@ -170,6 +191,12 @@ export function SearchPanel() {
           </div>
         </div>
         
+        {!searchedLocation && (
+          <div className="p-2 mb-2 text-sm bg-yellow-50 border border-yellow-200 rounded text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-200 dark:border-yellow-800">
+            第二步：设置地址后，选择设施类型
+          </div>
+        )}
+        
         <div className="space-y-2">
           {(Object.keys(facilityConfigs) as FacilityType[]).map((type) => {
             const config = facilityConfigs[type]
@@ -179,12 +206,13 @@ export function SearchPanel() {
                   type="checkbox"
                   id={`facility-${type}`}
                   checked={selectedFacilityTypes.includes(type)}
-                  onChange={() => toggleFacilityType(type)}
+                  onChange={() => handleToggleFacility(type)}
                   className="mr-2"
+                  disabled={!searchedLocation && !selectedFacilityTypes.includes(type)}
                 />
                 <label
                   htmlFor={`facility-${type}`}
-                  className="flex items-center"
+                  className={`flex items-center ${!searchedLocation && !selectedFacilityTypes.includes(type) ? 'text-gray-400 dark:text-gray-600' : ''}`}
                 >
                   <span 
                     className="w-3 h-3 rounded-full mr-2"
@@ -201,6 +229,7 @@ export function SearchPanel() {
       {/* 下载按钮 */}
       <button
         className="w-full bg-gray-800 dark:bg-gray-600 text-white p-2 rounded-md hover:bg-gray-700 dark:hover:bg-gray-500"
+        disabled={!searchedLocation || selectedFacilityTypes.length === 0}
       >
         下载图片
       </button>
